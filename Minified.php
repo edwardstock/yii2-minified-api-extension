@@ -10,6 +10,10 @@
 
 namespace edwardstock\minified;
 
+define('DS',DIRECTORY_SEPARATOR) or defined('DS');
+
+use common\helpers\ES;
+use edwardstock\minified\Exceptions\MinifiedException;
 use yii\base\Component;
 
 class Minified extends Component {
@@ -24,20 +28,81 @@ class Minified extends Component {
 	const SPEC_ECMASCRIPT5 = 'ECMASCRIPT5';
 	const SPEC_ECMASCRIPT5_STRICT = 'ECMASCRIPT5_STRICT';
 
+	/**
+	 * @var string
+	 */
 	public $username;
-	public $token;
-	public $password;
-	public $sourceJsPaths = array();
-	public $sourceCssPaths = array();
-	public $yiiDebug = false;
-	public $params = array(
-		'jsCompilationLevel'=>self::COMPILATION_LEVEL_SIMPLE_OPTIMIZATION,
-		'jsSpecification'=>self::SPEC_DEFAULT_ECMASCRIPT3,
-		'combineCss'=>false,
-	);
 
-	private $_css;
-	private $_js;
+	/**
+	 * Personal user token given on site
+	 * @var string
+	 */
+	public $token;
+
+	/**
+	 * JS paths
+	 * @var array
+	 */
+	public $sourceJsPaths = array();
+
+	/**
+	 * CSS paths
+	 * @var array
+	 */
+	public $sourceCssPaths = array();
+
+	/**
+	 * @var bool If enabled, files will not compressed and published originals
+	 */
+	public $yiiDebug = false;
+
+	/**
+	 * @var bool
+	 */
+	public $recursiveJsScan = true;
+
+	/**
+	 * @var bool
+	 */
+	public $recursiveCssScan = true;
+
+	/**
+	 * @var bool Combining css files into one file
+	 */
+	public $combineCss = false;
+
+	/**
+	 * @var bool Combining js files into one file
+	 */
+	public $combineJs = false;
+
+	/**
+	 * @var string Compilation level
+	 * @see https://developers.google.com/closure/compiler/docs/overview?hl=ru
+	 */
+	public $jsCompilationLevel = self::COMPILATION_LEVEL_SIMPLE_OPTIMIZATION;
+
+	/**
+	 * JavaScript specification version.
+	 * By default recommended ECMASCRIPT3
+	 * @var string
+	 */
+	public $jsSpecification = self::SPEC_DEFAULT_ECMASCRIPT3;
+
+	/**
+	 * @var array
+	 * [
+	 *      'pathname',  full file path
+	 *      'timestamp', timestamp of edit time
+	 *      'size'       size in bytes
+	 *      'type'       file extension
+	 * ]
+	 */
+	private $_contents = array();
+
+	/**
+	 * @var string By default is in extension's "assets" directory
+	 */
 	private $_assetsPath;
 	private $_toSend = array();
 	private $_curlConfig = array(
@@ -51,7 +116,6 @@ class Minified extends Component {
 
 	public function init() {
 		$this->_assetsPath = __DIR__ . '/assets';
-
 		parent::init();
 	}
 
@@ -60,17 +124,67 @@ class Minified extends Component {
 	 */
 	public function getRock() {
 		$this->prepareFiles();
+		$this->getFilesContent();
+		ES::dump($this->_contents);exit;
 	}
 
+	/**
+	 * Scanning existed files and put into array @see $_contents
+	 */
 	private function prepareFiles() {
-//		foreach($this->sourceJsPaths AS $path) {
-//			ES::dump(scandir($path));
-//		}
-//
-//		foreach($this->sourceCssPaths AS $path) {
-//			ES::dump(scandir($path));
-//		}
+
+		foreach($this->sourceJsPaths AS $path) {
+			$this->scanDirectory($path, $this->recursiveJsScan);
+		}
+
+		foreach($this->sourceCssPaths AS $path) {
+			$this->scanDirectory($path, $this->recursiveCssScan);
+		}
 	}
+
+	/**
+	 * @param string $path
+	 * @param bool $recursive
+	 * @param array $acceptableExtensions JS | CSS
+	 * @throws Exceptions\MinifiedException
+	 * @return void
+	 */
+	private function scanDirectory($path, $recursive = true, $acceptableExtensions = ['js','css']) {
+		$flags = \FilesystemIterator::SKIP_DOTS | \FilesystemIterator::FOLLOW_SYMLINKS;
+
+		/** @var \SplFileInfo[] $objects */
+
+		if($recursive) {
+			$objects = new \RecursiveIteratorIterator(
+				new \RecursiveDirectoryIterator($path, $flags), \RecursiveIteratorIterator::SELF_FIRST
+			);
+		} else {
+			$objects = new \DirectoryIterator($path, $flags);
+		}
+
+		foreach($objects as $object) {
+			if($object->isDir() || !in_array(strtolower($object->getExtension()), $acceptableExtensions)) {
+				continue;
+			}
+
+			if(!$object->isReadable())
+				throw new MinifiedException("File by path {$object->getPathname()} is not readable. Please check rights.");
+
+			$this->_contents[] = [
+				'pathname'=>$object->getPathname(),
+				'timestamp'=>$object->getMTime(),
+				'size'=>$object->getSize(),
+				'type'=>$object->getExtension()
+			];
+		}
+	}
+
+	private function getFilesContent() {
+		foreach($this->_contents AS &$item) {
+			$item['content'] = file_get_contents($item['pathname']);
+		}
+	}
+
 
 	private function prepareUserToken() {
 		return md5($this->username).$this->token;
