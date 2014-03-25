@@ -116,6 +116,7 @@ class Minified extends Component {
 	private $_toSend = array();
 	private $_curlConfig = array(
 		'apiUrl'=>'http://api.minified.pw',
+		'auth'=>'http://api.minified.pw/user/auth',
 		'createItem'=>'http://api.minified.pw/source/add',     //verb POST
 		'updateItem'=>'http://api.minified.pw/source/update',  //verb POST
 		'deleteItem'=>'http://api.minified.pw/source/delete',  //verb DELETE
