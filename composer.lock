@@ -1,0 +1,49 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
+    ],
+    "hash": "1718f475cc207764290ac0338901df71",
+    "packages": [
+        {
+            "name": "php-curl-class/php-curl-class",
+            "version": "1.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/php-curl-class/php-curl-class.git",
+                "reference": "66c8908e0f5de3a812a240ae9cd20dbc728c1a15"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/php-curl-class/php-curl-class/zipball/66c8908e0f5de3a812a240ae9cd20dbc728c1a15",
+                "reference": "66c8908e0f5de3a812a240ae9cd20dbc728c1a15",
+                "shasum": ""
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "lib/"
+                ]
+            },
+            "notification-url": "http://packagist.org/downloads/",
+            "description": "PHP Curl Class is an object-oriented wrapper of the PHP cURL extension.",
+            "time": "2014-03-02 09:59:56"
+        }
+    ],
+    "packages-dev": [
+
+    ],
+    "aliases": [
+
+    ],
+    "minimum-stability": "stable",
+    "stability-flags": [
+
+    ],
+    "platform": {
+        "php": ">=5.4.0"
+    },
+    "platform-dev": [
+
+    ]
+}
