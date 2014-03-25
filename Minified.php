@@ -13,12 +13,22 @@ namespace edwardstock\minified;
 define('DS',DIRECTORY_SEPARATOR) or defined('DS');
 
 use common\helpers\ES;
+use edwardstock\curl\Curl;
 use edwardstock\minified\Exceptions\MinifiedException;
+use edwardstock\minified\Exceptions\MinifiedServiceException;
 use yii\base\Component;
+use yii\base\Exception;
 use yii\web\HttpException;
 use yii\web\View;
 
 class Minified extends Component {
+
+	const API_NO_ERRORS                         = 0x0;
+	const API_ERROR_USER_NOT_FOUND              = 0x1;
+	const API_ERROR_USER_TOKEN_DOES_NOT_MATCH   = 0x2;
+	const API_WARNING_USER_DATA_NOT_FOUND       = 0x3;
+	const API_ERROR_SOURCE_NOT_FOUND            = 0x4;
+	const API_ERROR_SOURCE_UNKNOWN_ERROR        = 0x5;
 
 	const ERROR_CODE_BAD_REQUEST = 400;
 	const ERROR_CODE_PERMISSION_DENIED = 403;
@@ -120,7 +130,10 @@ class Minified extends Component {
 	 * @var string By default is in extension's "assets" directory
 	 */
 	private $_assetsPath;
-	private $_toSend = array();
+
+	/**
+	 * @var array API config
+	 */
 	private $_curlConfig = array(
 		'apiUrl'=>'http://api.minified.pw',
 		'auth'=>'http://api.minified.pw/user/auth',
@@ -130,6 +143,13 @@ class Minified extends Component {
 		'getItem'=>'http://api.minified.pw/source/get-static', //verb GET
 		'userAgent'=>'Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1700.102 Safari/537.36',
 	);
+
+	private $_errors = [];
+
+	/**
+	 * @var bool Success or unsuccess authorization
+	 */
+	private $_authorized = false;
 
 	public function init() {
 		$this->_assetsPath = __DIR__ . '/assets';
@@ -148,7 +168,12 @@ class Minified extends Component {
 //		if(!$this->getFilesContent())
 //			return;
 
-		$this->auth();
+		try{
+			$this->auth();
+		}catch (Exception $e) {
+			echo $e->getMessage();exit;
+		}
+
 
 
 
@@ -221,10 +246,6 @@ class Minified extends Component {
 		return md5($this->username).$this->token;
 	}
 
-	public function __invoke(\edwardstock\curl\Curl $curl) {
-		ES::dump($curl);
-	}
-
 	/**
 	 * @return array
 	 */
@@ -233,10 +254,10 @@ class Minified extends Component {
 	}
 
 	private function auth() {
-		$curl = new \edwardstock\curl\Curl();
+		$curl = new Curl();
 		$curl->setUserAgent($this->_curlConfig['userAgent']);
-		$curl->success($this);
-		$curl->error($this);
+		$curl->success(array($this,'onAuthSuccess'));
+		$curl->error(array($this,'onAuthError'));
 
 		$curl->post($this->_curlConfig['auth'], [
 			'username'=>$this->username,
@@ -245,15 +266,27 @@ class Minified extends Component {
 
 		$curl->close();
 
-		exit;
 	}
 
-	protected function onAuthSuccess(\edwardstock\curl\Curl $curl) {
-		ES::dump($curl->response);
+	public function onAuthSuccess(Curl $curl) {
+		$response = $this->handleJsonResponse($curl);
+		$this->_errors['auth'] = $response->error;
+
+		if($response->error !== self::API_NO_ERRORS) {
+			throw new MinifiedServiceException('Unable to authorize on service', $response->error);
+		}
 	}
 
-	protected function onAuthError(\edwardstock\curl\Curl $curl) {
+	public function onAuthError(Curl $curl) {
 		throw new HttpException($curl->errorCode, $this->_curlConfig['auth'].' '.$curl->errorMessage);
+	}
+
+	/**
+	 * @param Curl $curl
+	 * @return \stdClass|array
+	 */
+	private function handleJsonResponse(Curl $curl) {
+		return json_decode($curl->response);
 	}
 
 
