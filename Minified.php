@@ -14,11 +14,18 @@ define('DS',DIRECTORY_SEPARATOR) or defined('DS');
 
 use common\helpers\ES;
 use edwardstock\minified\Exceptions\MinifiedException;
-use edwardstock\minified\vendor\curl\Curl;
 use yii\base\Component;
+use yii\web\HttpException;
 use yii\web\View;
 
 class Minified extends Component {
+
+	const ERROR_CODE_BAD_REQUEST = 400;
+	const ERROR_CODE_PERMISSION_DENIED = 403;
+	const ERROR_CODE_AUTH_REQUIRED = 401;
+	const ERROR_CODE_NOT_FOUND = 404;
+	const ERROR_CODE_INTERNAL_ERROR = 500;
+	const ERROR_CODE_SERVICE_UNAVAILABLE = 503;
 
 	// compilation levels
 	const COMPILATION_LEVEL_WHITESPACE_ONLY = 'WHITESPACE_ONLY';
@@ -118,7 +125,7 @@ class Minified extends Component {
 		'apiUrl'=>'http://api.minified.pw',
 		'auth'=>'http://api.minified.pw/user/auth',
 		'createItem'=>'http://api.minified.pw/source/add',     //verb POST
-		'updateItem'=>'http://api.minified.pw/source/update',  //verb POST
+		'updateItem'=>'http://api.minified.pw/source/update',  //verb PUT
 		'deleteItem'=>'http://api.minified.pw/source/delete',  //verb DELETE
 		'getItem'=>'http://api.minified.pw/source/get-static', //verb GET
 		'userAgent'=>'Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1700.102 Safari/537.36',
@@ -137,9 +144,9 @@ class Minified extends Component {
 //		if(YII_DEBUG and $this->yiiDebug)
 //			return;
 
-		$this->prepareFiles();
-		if(!$this->getFilesContent())
-			return;
+//		$this->prepareFiles();
+//		if(!$this->getFilesContent())
+//			return;
 
 		$this->auth();
 
@@ -214,6 +221,10 @@ class Minified extends Component {
 		return md5($this->username).$this->token;
 	}
 
+	public function __invoke(\edwardstock\curl\Curl $curl) {
+		ES::dump($curl);
+	}
+
 	/**
 	 * @return array
 	 */
@@ -222,13 +233,27 @@ class Minified extends Component {
 	}
 
 	private function auth() {
-		$curl = new \Curl();
-		$data = $curl->post($this->_curlConfig['auth'],[
+		$curl = new \edwardstock\curl\Curl();
+		$curl->setUserAgent($this->_curlConfig['userAgent']);
+		$curl->success($this);
+		$curl->error($this);
+
+		$curl->post($this->_curlConfig['auth'], [
 			'username'=>$this->username,
 			'token'=>$this->token
 		]);
 
-		ES::dump($data);exit;
+		$curl->close();
+
+		exit;
+	}
+
+	protected function onAuthSuccess(\edwardstock\curl\Curl $curl) {
+		ES::dump($curl->response);
+	}
+
+	protected function onAuthError(\edwardstock\curl\Curl $curl) {
+		throw new HttpException($curl->errorCode, $this->_curlConfig['auth'].' '.$curl->errorMessage);
 	}
 
 
