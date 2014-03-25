@@ -118,6 +118,7 @@ class Minified extends Component {
 	/**
 	 * @var array
 	 * [
+	 *      'filename'   filename withour extension
 	 *      'pathname',  full file path
 	 *      'timestamp', timestamp of edit time
 	 *      'size'       size in bytes
@@ -127,7 +128,7 @@ class Minified extends Component {
 	private $_contents = array();
 
 	/**
-	 * @var string By default is in extension's "assets" directory
+	 * @var string By default is in extension's "storage" directory
 	 */
 	private $_assetsPath;
 
@@ -146,13 +147,15 @@ class Minified extends Component {
 
 	private $_errors = [];
 
+	private $_storageCountFiles = 0;
+
 	/**
 	 * @var bool Success or unsuccess authorization
 	 */
 	private $_authorized = false;
 
 	public function init() {
-		$this->_assetsPath = __DIR__ . '/assets';
+		$this->_assetsPath = __DIR__ . '/storage';
 		parent::init();
 	}
 
@@ -164,18 +167,57 @@ class Minified extends Component {
 //		if(YII_DEBUG and $this->yiiDebug)
 //			return;
 
-//		$this->prepareFiles();
-//		if(!$this->getFilesContent())
-//			return;
+		$this->prepareFiles();
+
+
+		if(!$this->getFilesContent())
+			return;
 
 		try{
 			$this->auth();
 		}catch (Exception $e) {
-			echo $e->getMessage();exit;
+			echo $e->getMessage();
+			return;
 		}
 
 
+		if($this->storageIsEmpty() || !$this->assetsCountIsEquals()) {
+			foreach($this->_contents AS $file) {
+				$this->writeHashFile($file);
+			}
+		} else {
+			$tokens = $this->getStorageTokens();
+		}
 
+
+	}
+
+	private function getStorageTokens() {
+		//берем имена файлов и отправляем на сервер
+	}
+
+	private function assetsCountIsEquals() {
+		return count($this->_contents) === $this->_storageCountFiles;
+	}
+
+	/**
+	 * Writes empty file with hashed name by: filename+timestamp wrapped by md5()
+	 * @param array $file
+	 */
+	private function writeHashFile(array $file) {
+		$targetPath = $this->_assetsPath.DS.md5($file['filename'].$file['timestamp']);
+
+		if(file_exists($targetPath) && is_file($targetPath))
+			return;
+
+		$handle = fopen($targetPath, 'w');
+		fwrite($handle, "\x0");
+		fclose($handle);
+
+		unset($targetPath);
+	}
+
+	private function getStorageTokens() {
 
 	}
 
@@ -183,24 +225,41 @@ class Minified extends Component {
 	 * Scanning existed files and put into array @see $_contents
 	 */
 	private function prepareFiles() {
-
 		foreach($this->sourceJsPaths AS $path) {
-			$this->scanDirectory($path, $this->recursiveJsScan);
+			$this->getSourceFilesInfo($path, $this->recursiveJsScan, ['js']);
 		}
 
 		foreach($this->sourceCssPaths AS $path) {
-			$this->scanDirectory($path, $this->recursiveCssScan);
+			$this->getSourceFilesInfo($path, $this->recursiveCssScan, ['css']);
 		}
+	}
+
+	/**
+	 * Checks for empty storage dir
+	 * @return bool
+	 */
+	private function storageIsEmpty() {
+		$filesCount = 0;
+		foreach($this->scanDirectory($this->_assetsPath,true) AS $object) {
+
+			if($object->isDir() || $object->getExtension() === 'gitignore')
+				continue;
+
+			if($object->isFile())
+				$filesCount++;
+		}
+
+		$this->_storageCountFiles = $filesCount;
+
+		return $filesCount > 0 ? false : true;
 	}
 
 	/**
 	 * @param string $path
 	 * @param bool $recursive
-	 * @param array $acceptableExtensions JS | CSS
-	 * @throws Exceptions\MinifiedException
-	 * @return void
+	 * @return \SplFileInfo[]
 	 */
-	private function scanDirectory($path, $recursive = true, $acceptableExtensions = ['js','css']) {
+	private function scanDirectory($path, $recursive = true) {
 		$flags = \FilesystemIterator::SKIP_DOTS | \FilesystemIterator::FOLLOW_SYMLINKS;
 
 		/** @var \SplFileInfo[] $objects */
@@ -213,6 +272,12 @@ class Minified extends Component {
 			$objects = new \DirectoryIterator($path, $flags);
 		}
 
+		return $objects;
+	}
+
+	private function getSourceFilesInfo($path, $recursive = true, $acceptableExtensions = ['js','css']) {
+		$objects = $this->scanDirectory($path, $recursive);
+
 		foreach($objects as $object) {
 			if($object->isDir() || !in_array(strtolower($object->getExtension()), $acceptableExtensions)) {
 				continue;
@@ -222,6 +287,7 @@ class Minified extends Component {
 				throw new MinifiedException("File by path {$object->getPathname()} is not readable. Please check rights.");
 
 			$this->_contents[] = [
+				'filename'=>$object->getFilename(),
 				'pathname'=>$object->getPathname(),
 				'timestamp'=>$object->getMTime(),
 				'size'=>$object->getSize(),
