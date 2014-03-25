@@ -217,10 +217,6 @@ class Minified extends Component {
 		unset($targetPath);
 	}
 
-	private function getStorageTokens() {
-
-	}
-
 	/**
 	 * Scanning existed files and put into array @see $_contents
 	 */
