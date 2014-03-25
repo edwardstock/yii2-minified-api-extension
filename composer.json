@@ -18,8 +18,14 @@
 	],
 	"require": {
 		"php": ">=5.4.0",
-		"php-curl-class/php-curl-class": "1.0.1"
+		"edwardstock/php-curl-class" : "dev-master"
 	},
+	"repositories": [
+		{
+			"type" : "git",
+			"url"  : "https://github.com/edwardstock/php-curl-class.git"
+		}
+	],
 	"autoload": {
 		"psr-4": {
 			"edwardstock\\minified\\": ""
