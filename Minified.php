@@ -14,8 +14,8 @@ define('DS',DIRECTORY_SEPARATOR) or defined('DS');
 
 use common\helpers\ES;
 use edwardstock\curl\Curl;
-use edwardstock\minified\Exceptions\MinifiedException;
-use edwardstock\minified\Exceptions\MinifiedServiceException;
+use edwardstock\minified\exceptions\MinifiedException;
+use edwardstock\minified\exceptions\MinifiedServiceException;
 use yii\base\Component;
 use yii\base\Exception;
 use yii\web\HttpException;
