@@ -17,8 +17,8 @@
 		}
 	],
 	"require": {
-		"yiisoft/yii2": "*",
-		"php": ">=5.4.0"
+		"php": ">=5.4.0",
+		"php-curl-class/php-curl-class": "1.0.1"
 	},
 	"autoload": {
 		"psr-4": {

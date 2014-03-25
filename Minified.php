@@ -14,7 +14,9 @@ define('DS',DIRECTORY_SEPARATOR) or defined('DS');
 
 use common\helpers\ES;
 use edwardstock\minified\Exceptions\MinifiedException;
+use edwardstock\minified\vendor\curl\Curl;
 use yii\base\Component;
+use yii\web\View;
 
 class Minified extends Component {
 
@@ -43,13 +45,20 @@ class Minified extends Component {
 	 * JS paths
 	 * @var array
 	 */
-	public $sourceJsPaths = array();
+	public $sourceJsPaths = [];
 
 	/**
 	 * CSS paths
 	 * @var array
 	 */
-	public $sourceCssPaths = array();
+	public $sourceCssPaths = [];
+
+	/**
+	 * AssetBundle depends. Meaning how files will be ordered
+	 * @see yii\web\AssetBundle::$depends
+	 * @var array
+	 */
+	public $assetsDepends = [];
 
 	/**
 	 * @var bool If enabled, files will not compressed and published originals
@@ -122,10 +131,19 @@ class Minified extends Component {
 	/**
 	 * Starts this mega-machine
 	 */
-	public function getRock() {
+	public function getRock(View $context) {
+
+//		if(YII_DEBUG and $this->yiiDebug)
+//			return;
+
 		$this->prepareFiles();
-		$this->getFilesContent();
-		ES::dump($this->_contents);exit;
+		if(!$this->getFilesContent())
+			return;
+
+		$this->auth();
+
+
+
 	}
 
 	/**
@@ -180,9 +198,14 @@ class Minified extends Component {
 	}
 
 	private function getFilesContent() {
+		if(empty($this->_contents))
+			return false;
+
 		foreach($this->_contents AS &$item) {
 			$item['content'] = file_get_contents($item['pathname']);
 		}
+
+		return true;
 	}
 
 
@@ -190,8 +213,22 @@ class Minified extends Component {
 		return md5($this->username).$this->token;
 	}
 
+	/**
+	 * @return array
+	 */
+	public function getDepends() {
+		return $this->assetsDepends;
+	}
+
+	private function auth() {
+		$curl = new \Curl();
+		$data = $curl->post($this->_curlConfig['auth'],[
+			'username'=>$this->username,
+			'token'=>$this->token
+		]);
+
+		ES::dump($data);exit;
+	}
 
 
-
-
-} 
+}
