@@ -3,8 +3,9 @@
  * yii2-minified-api-extension. 2014
  * @author Eduard Maksimovich <edward.vstock@gmail.com>
  *
- * Class: EventTrait
+ * Class: ServiceHandlerTrait
  *
+ * @package edwardstock\minified\events
  */
 
 namespace edwardstock\minified\events;
@@ -15,18 +16,13 @@ use edwardstock\minified\exceptions\MinifiedServiceException;
 use edwardstock\minified\helpers\JsonHelper;
 use edwardstock\minified\MinifiedService;
 
-/**
- * Class EventTrait
- * @package edwardstock\minified\events
- * @property array $_curlConfig
- * @property bool $_authenticated
- */
-trait EventTrait {
+trait ServiceHandlerTrait {
 
-	private $_authenticated = false;
+	private $authenticated = false;
+	private $response = [];
 
 	public function getIsAuthenticated() {
-		return $this->_authenticated;
+		return $this->authenticated;
 	}
 
 	public function onAuthSuccess(Curl $curl) {
@@ -37,12 +33,12 @@ trait EventTrait {
 			throw new MinifiedServiceException('Unable to authorize on service', $response->error);
 		}
 		\Yii::trace('Authorization successful ', __METHOD__);
-		$this->_authenticated = true;
+		$this->authenticated = true;
 	}
 
-	public function onAuthError(Curl $curl) {
+	public function onAuthError(Curl $curl, array $data, MinifiedService $context) {
 		\Yii::error("Authorization failed. Error code: {$curl->errorCode}. Message: {$curl->errorMessage}", __METHOD__);
-		throw new \HttpException($curl->errorCode, $this->_curlConfig['auth'].' '.$curl->errorMessage);
+		throw new \HttpException($curl->errorCode, $context->getCurlConfig()['auth'].' '.$curl->errorMessage);
 	}
 
 	public function onPutDataError(Curl $curl) {

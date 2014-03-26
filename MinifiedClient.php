@@ -105,42 +105,42 @@ class MinifiedClient extends Component
 	 * ]
 	 * ~~~
 	 */
-	private $_contents = [];
+	private $contents = [];
 	/**
 	 * Here contains data like in array above,
 	 * but this array will be sent for getting compressed data,
 	 * because files in this array are was changed
 	 * @var array
 	 */
-	private $_contentsModified = [];
+	private $contentsModified = [];
 	/**
 	 * This array will be send
 	 * @var array
 	 */
-	private $_toSend = [];
+	private $toSend = [];
 	/**
 	 * @var string By default is in extension's "resources/storage" directory
 	 */
-	private $_storagePath;
+	private $storagePath;
 	/**
 	 * @var string By default is a "resources/hashes"
 	 */
-	private $_hashFilesPath;
-	private $_hashFilesCount = 0;
-	private $_storageFilesCount = 0;
-	private $_hashFilesList = [];
+	private $hashFilesPath;
+	private $hashFilesCount = 0;
+	private $storageFilesCount = 0;
+	private $hashFilesList = [];
 	/**
 	 * @var MinifiedService
 	 */
-	private $_service;
+	private $service;
 
 	public function init() {
-		$this->_storagePath = __DIR__ . '/resources/storage';
-		$this->_hashFilesPath = __DIR__ . '/resources/hashes';
-		$this->_hashFilesCount = FileHelper::countFilesInPath($this->_hashFilesPath);
-		$this->_storageFilesCount = FileHelper::countFilesInPath($this->_storagePath);
+		$this->storagePath = __DIR__ . '/resources/storage';
+		$this->hashFilesPath = __DIR__ . '/resources/hashes';
+		$this->hashFilesCount = FileHelper::countFilesInPath($this->hashFilesPath);
+		$this->storageFilesCount = FileHelper::countFilesInPath($this->storagePath);
 
-		$this->_service = new MinifiedService($this);
+		$this->service = new MinifiedService($this);
 
 		parent::init();
 	}
@@ -158,20 +158,20 @@ class MinifiedClient extends Component
 			return $this;
 		}
 
-		if ( $this->hashPathIsEmpty() || $this->_hashFilesCount !== count($this->_contents) ) {
-			foreach ( $this->_contents AS $file ) {
+		if ( $this->hashPathIsEmpty() || $this->hashFilesCount !== count($this->contents) ) {
+			foreach ( $this->contents AS $file ) {
 				$this->writeHashFile($file);
 			}
 		}
 
 		if ( $this->storagePathIsEmpty() ) {
-			$this->registerRequestData($this->_contents);
+			$this->registerRequestData($this->contents);
 		} elseif ( !$this->hashesEqualsOriginal() ) {
-			$this->registerRequestData($this->_contentsModified);
+			$this->registerRequestData($this->contentsModified);
 		}
 
 		try {
-			$this->_service->authenticate();
+			$this->service->authenticate();
 		} catch (Exception $e) {
 			echo $e->getMessage();
 
@@ -185,7 +185,7 @@ class MinifiedClient extends Component
 	 * Do something
 	 */
 	public function rock() {
-		$this->_service->add($this->_toSend);
+		$this->service->add($this->toSend);
 	}
 
 	/**
@@ -199,25 +199,25 @@ class MinifiedClient extends Component
 	 * @return bool
 	 */
 	private function storagePathIsEmpty() {
-		return $this->_storageFilesCount === 0 ? true : false;
+		return $this->storageFilesCount === 0 ? true : false;
 	}
 
 	/**
 	 * @return bool
 	 */
 	private function hashPathIsEmpty() {
-		return $this->_hashFilesCount === 0 ? true : false;
+		return $this->hashFilesCount === 0 ? true : false;
 	}
 
 	/**
 	 * @param array $files
 	 */
 	private function registerRequestData($files) {
-		$this->_toSend = $files;
+		$this->toSend = $files;
 	}
 
 	/**
-	 * Scanning existed files and put into array @see $_contents
+	 * Scanning existed files and put into array @see contents
 	 */
 	private function prepareFiles() {
 		\Yii::trace("Preparing source JavaScript files", __METHOD__);
@@ -253,7 +253,7 @@ class MinifiedClient extends Component
 				throw new MinifiedException("File by path {$object->getPathname()} is not readable. Please check rights.");
 			}
 
-			$this->_contents[] = [
+			$this->contents[] = [
 				'filename' => $object->getFilename(),
 				'pathname' => $object->getPathname(),
 				'timestamp' => $object->getMTime(),
@@ -268,11 +268,11 @@ class MinifiedClient extends Component
 	 */
 	private function obtainFilesContent() {
 		\Yii::trace("Getting source files content intro array", __METHOD__);
-		if ( empty($this->_contents) ) {
+		if ( empty($this->contents) ) {
 			return false;
 		}
 
-		foreach ( $this->_contents AS &$item ) {
+		foreach ( $this->contents AS &$item ) {
 			$item['content'] = file_get_contents($item['pathname']);
 		}
 
@@ -284,12 +284,12 @@ class MinifiedClient extends Component
 	 * @return void
 	 */
 	private function obtainHashFilesList() {
-		if ( $this->_hashFilesCount === count($this->_contents) AND !empty($this->_hashFilesList) ) {
+		if ( $this->hashFilesCount === count($this->contents) AND !empty($this->hashFilesList) ) {
 			return;
 		}
 
-		foreach ( FileHelper::scanDirectory($this->_hashFilesPath, false) AS $object ) {
-			$this->_hashFilesList[] = $object->getFilename();
+		foreach ( FileHelper::scanDirectory($this->hashFilesPath, false) AS $object ) {
+			$this->hashFilesList[] = $object->getFilename();
 		}
 	}
 
@@ -299,14 +299,14 @@ class MinifiedClient extends Component
 	 */
 	private function writeHashFile(array $file) {
 		\Yii::trace("Writing empty hash file " . $file['pathname'], __METHOD__);
-		$targetPath = $this->_hashFilesPath . DS . md5($file['filename'] . $file['timestamp']);
+		$targetPath = $this->hashFilesPath . DS . md5($file['filename'] . $file['timestamp']);
 
 		if ( file_exists($targetPath) && is_file($targetPath) ) {
 			return;
 		}
 
 		//protector from double directory scanning
-		$this->_hashFilesList[] = md5($file['filename'] . $file['timestamp']);
+		$this->hashFilesList[] = md5($file['filename'] . $file['timestamp']);
 		$handle = fopen($targetPath, 'w');
 		fwrite($handle, "\x0");
 		fclose($handle);
@@ -321,12 +321,12 @@ class MinifiedClient extends Component
 	 */
 	private function hashesEqualsOriginal() {
 		$count = 0;
-		foreach ( $this->_contents AS $file ) {
-			if ( md5($file['filename'] . $file['timestamp']) === $this->_hashFilesList[$count] ) {
+		foreach ( $this->contents AS $file ) {
+			if ( md5($file['filename'] . $file['timestamp']) === $this->hashFilesList[$count] ) {
 				continue;
 			}
 
-			$this->_contentsModified[] = $file;
+			$this->contentsModified[] = $file;
 
 			$count++;
 		}
@@ -343,8 +343,8 @@ class MinifiedClient extends Component
 	 * @return bool
 	 */
 	private function assetsCountIsEquals() {
-		$equals = (count($this->_contents) === $this->_hashFilesCount) === $this->_storageFilesCount;
-		\Yii::info("Hash count: {$this->_hashFilesCount}; Storage count: {$this->_storageFilesCount}; Contents count: " . count($this->_contents),
+		$equals = (count($this->contents) === $this->hashFilesCount) === $this->storageFilesCount;
+		\Yii::info("Hash count: {$this->hashFilesCount}; Storage count: {$this->storageFilesCount}; Contents count: " . count($this->contents),
 			__METHOD__);
 		$info = $equals ? "true" : "false";
 		\Yii::info("Are they equals? $info", __METHOD__);

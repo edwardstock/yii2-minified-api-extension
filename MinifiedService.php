@@ -12,13 +12,13 @@ namespace edwardstock\minified;
 use edwardstock\curl\Curl;
 use edwardstock\curl\helpers\ArrayHelper;
 use edwardstock\minified\core\ServiceInterface;
-use edwardstock\minified\events\EventTrait;
+use edwardstock\minified\events\ServiceHandlerTrait;
 use edwardstock\minified\helpers\JsonHelper;
 use yii\base\Object;
 
 final class MinifiedService extends Object implements ServiceInterface {
 
-	use EventTrait{
+	use ServiceHandlerTrait{
 		onAuthError         AS protected authErrorEvent;
 		onAuthSuccess       AS protected authSuccessEvent;
 		onDeleteDataError   AS protected deleteDataErrorEvent;
@@ -36,11 +36,11 @@ final class MinifiedService extends Object implements ServiceInterface {
 	const API_ERROR_SOURCE_NOT_FOUND            = 0x4;
 	const API_ERROR_SOURCE_UNKNOWN_ERROR        = 0x5;
 
-	private $_username;
-	private $_token;
-	private $_queue = [];
-	private $_curl;
-	private $_response = [];
+	private $username;
+	private $token;
+	private $queue = [];
+	private $curl;
+	private $response = [];
 	/**
 	 * @var array API config
 	 */
@@ -54,13 +54,13 @@ final class MinifiedService extends Object implements ServiceInterface {
 	];
 
 	public function __construct(MinifiedClient $minified) {
-		$this->_username = $minified->username;
-		$this->_token = $minified->token;
-		$this->_curl = new Curl();
+		$this->username = $minified->username;
+		$this->token = $minified->token;
+		$this->curl = new Curl();
 	}
 
 	public function add(array $data) {
-		$this->_queue[] = $data;
+		$this->queue[] = $data;
 	}
 
 	public function getData() {
@@ -68,12 +68,12 @@ final class MinifiedService extends Object implements ServiceInterface {
 	}
 
 	public function putData() {
-		$this->_curl->onError([$this, 'putDataErrorEvent']);
-		$this->_curl->onSuccess([$this, 'putDataSuccessEvent']);
-		foreach($this->_queue AS $items) {
-			$this->_curl->post($this->_curlConfig['putItems'], array_merge($items, [
-				'username'=>$this->_username,
-				'token'=>$this->_token
+		$this->curl->onError([$this, 'putDataErrorEvent']);
+		$this->curl->onSuccess([$this, 'putDataSuccessEvent']);
+		foreach($this->queue AS $items) {
+			$this->curl->post($this->_curlConfig['putItems'], array_merge($items, [
+				'username'=>$this->username,
+				'token'=>$this->token
 			]));
 		}
 	}
@@ -86,21 +86,25 @@ final class MinifiedService extends Object implements ServiceInterface {
 	 * Authenticates user
 	 */
 	public function authenticate() {
-		$this->_curl->setUserAgent($this->_curlConfig['userAgent']);
-		$this->_curl->onError(array($this,'authErrorEvent'));
-		$this->_curl->onSuccess(array($this,'authSuccessEvent'));
+		$this->curl->setUserAgent($this->_curlConfig['userAgent']);
+		$this->curl->onError(array($this,'authErrorEvent'));
+		$this->curl->onSuccess(array($this,'authSuccessEvent'));
 
-		$this->_curl->post($this->_curlConfig['auth'], [
-			'username'=>$this->_username,
-			'token'=>$this->_token
+		$this->curl->post($this->_curlConfig['auth'], [
+			'username'=>$this->username,
+			'token'=>$this->token
 		]);
 	}
 
-	public function setResponse(EventTrait $event) {
+	public function setResponse(ServiceHandlerTrait $event) {
+		$this->response = $event->getResponse();
+	}
 
+	public function getCurlConfig() {
+		return $this->_curlConfig;
 	}
 
 	public function __destruct() {
-		$this->_curl->close();
+		$this->curl->close();
 	}
 }
