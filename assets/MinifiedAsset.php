@@ -9,7 +9,7 @@
 namespace edwardstock\minified\assets;
 
 
-use edwardstock\minified\Minified;
+use edwardstock\minified\MinifiedClient;
 use yii\web\AssetBundle;
 
 class MinifiedAsset extends AssetBundle {
@@ -26,7 +26,7 @@ class MinifiedAsset extends AssetBundle {
 	}
 
 	private function getDepends() {
-		if(isset(\Yii::$app->minified) && \Yii::$app->minified instanceof Minified){
+		if(isset(\Yii::$app->minified) && \Yii::$app->minified instanceof MinifiedClient){
 			$this->depends = \Yii::$app->minified->getDepends();
 		}
 	}

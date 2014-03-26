@@ -3,7 +3,7 @@
  * minified. 2014
  * @author Eduard Maksimovich <edward.vstock@gmail.com>
  *
- * Class: Minified
+ * Class: MinifiedClient
  *
  * RESTfull API based extension for service MINIFIED.pw
  */
@@ -18,7 +18,7 @@ use yii\base\Component;
 use yii\base\Exception;
 use yii\web\View;
 
-class Minified extends Component
+class MinifiedClient extends Component
 {
 
 	const ERROR_CODE_BAD_REQUEST = 400;
@@ -148,7 +148,7 @@ class Minified extends Component
 	/**
 	 * Preparing data to send or not
 	 * @param View $context
-	 * @return Minified
+	 * @return MinifiedClient
 	 */
 	public function prepare(View $context) {
 
