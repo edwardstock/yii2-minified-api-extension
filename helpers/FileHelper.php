@@ -6,7 +6,7 @@
  * Class: FileHelper
  */
 
-namespace edwardstock\minified\helpers;
+namespace EdwardStock\Minified\Helpers;
 
 
 class FileHelper

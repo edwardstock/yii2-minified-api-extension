@@ -8,12 +8,12 @@
  * RESTfull API based extension for service MINIFIED.pw
  */
 
-namespace edwardstock\minified;
+namespace EdwardStock\Minified;
 
 define('DS', DIRECTORY_SEPARATOR) or defined('DS');
 
-use edwardstock\minified\exceptions\MinifiedException;
-use edwardstock\minified\helpers\FileHelper;
+use EdwardStock\Minified\Exceptions\MinifiedException;
+use EdwardStock\Minified\Helpers\FileHelper;
 use yii\base\Component;
 use yii\base\Exception;
 use yii\web\View;

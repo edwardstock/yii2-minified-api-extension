@@ -6,7 +6,7 @@
  * Interface: ServiceInterface
  */
 
-namespace edwardstock\minified\core;
+namespace EdwardStock\Minified\Core;
 
 
 interface ServiceInterface {

@@ -1,5 +1,5 @@
 {
-	"name": "edwardstock/minified",
+	"name": "EdwardStock/Minified",
 	"version": "0.1",
 	"description": "Client extension for service MINIFIED.pw",
 	"keywords": ["yii", "extension", "js","css","js-compiler", "js-minifier", "google-closure"],
@@ -28,9 +28,11 @@
 	],
 	"autoload": {
 		"psr-4": {
-			"edwardstock\\minified\\": "",
-			"edwardstock\\minified\\exceptions\\": "",
-			"edwardstock\\minified\\assets\\": ""
+			"EdwardStock\\Minified\\": "",
+			"EdwardStock\\Minified\\Assets\\": "",
+			"EdwardStock\\Minified\\Core\\": "",
+			"EdwardStock\\Minified\\Exceptions\\": "",
+			"EdwardStock\\Minified\\Helpers\\": ""
 		}
 	}
 }

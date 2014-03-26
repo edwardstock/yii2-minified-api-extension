@@ -6,14 +6,13 @@
  * Class: MinifiedService
  */
 
-namespace edwardstock\minified;
+namespace EdwardStock\Minified;
 
 
 use edwardstock\curl\Curl;
-use edwardstock\curl\helpers\ArrayHelper;
-use edwardstock\minified\core\ServiceInterface;
-use edwardstock\minified\events\ServiceHandlerTrait;
-use edwardstock\minified\helpers\JsonHelper;
+use EdwardStock\Minified\Core\ServiceInterface;
+use EdwardStock\Minified\Core\ServiceHandlerTrait;
+use EdwardStock\Minified\Helpers\JsonHelper;
 use yii\base\Object;
 
 final class MinifiedService extends Object implements ServiceInterface {

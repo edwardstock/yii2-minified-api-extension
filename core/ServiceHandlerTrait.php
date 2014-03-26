@@ -8,7 +8,7 @@
  * @package edwardstock\minified\events
  */
 
-namespace edwardstock\minified\events;
+namespace EdwardStock\Minified\Core;
 
 
 use edwardstock\curl\Curl;

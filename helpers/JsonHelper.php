@@ -6,7 +6,7 @@
  * Class: JsonHelper
  */
 
-namespace edwardstock\minified\helpers;
+namespace EdwardStock\Minified\Helpers;
 
 
 use edwardstock\curl\Curl;

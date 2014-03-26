@@ -6,10 +6,10 @@
  * Class: MinifiedAsset
  */
 
-namespace edwardstock\minified\assets;
+namespace EdwardStock\Minified\StorageAssets;
 
 
-use edwardstock\minified\MinifiedClient;
+use EdwardStock\Minified\MinifiedClient;
 use yii\web\AssetBundle;
 
 class MinifiedAsset extends AssetBundle {

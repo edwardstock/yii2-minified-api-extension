@@ -6,7 +6,7 @@
  * Class: MinifiedException
  */
 
-namespace edwardstock\minified\exceptions;
+namespace EdwardStock\Minified\Exceptions;
 
 use yii\base\Exception;
 

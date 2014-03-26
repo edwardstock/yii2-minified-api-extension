@@ -6,7 +6,7 @@
  * Class: MinifiedServiceException
  */
 
-namespace edwardstock\minified\exceptions;
+namespace EdwardStock\Minified\Exceptions;
 
 
 class MinifiedServiceException extends MinifiedException {
