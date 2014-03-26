@@ -1,13 +1,4 @@
 <?php
-/**
- * minified. 2014
- * @author Eduard Maksimovich <edward.vstock@gmail.com>
- *
- * Class: MinifiedClient
- *
- * RESTfull API based extension for service MINIFIED.pw
- */
-
 namespace EdwardStock\Minified;
 
 define('DS', DIRECTORY_SEPARATOR) or defined('DS');
@@ -18,6 +9,14 @@ use yii\base\Component;
 use yii\base\Exception;
 use yii\web\View;
 
+/**
+ * minified. 2014
+ * @author Eduard Maksimovich <edward.vstock@gmail.com>
+ *
+ * Class: MinifiedClient
+ *
+ * RESTfull API based extension for service MINIFIED.pw
+ */
 class MinifiedClient extends Component
 {
 

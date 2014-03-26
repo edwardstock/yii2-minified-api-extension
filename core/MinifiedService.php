@@ -1,11 +1,4 @@
 <?php
-/**
- * minified. 2014
- * @author Eduard Maksimovich <edward.vstock@gmail.com>
- *
- * Class: MinifiedService
- */
-
 namespace EdwardStock\Minified\Core;
 
 
@@ -15,6 +8,12 @@ use EdwardStock\Minified\Core\ServiceHandlerTrait;
 use EdwardStock\Minified\Helpers\JsonHelper;
 use yii\base\Object;
 
+/**
+ * minified. 2014
+ * @author Eduard Maksimovich <edward.vstock@gmail.com>
+ *
+ * Class: MinifiedService
+ */
 final class MinifiedService extends Object implements ServiceInterface {
 
 	use ServiceHandlerTrait{

@@ -1,13 +1,4 @@
 <?php
-/**
- * yii2-minified-api-extension. 2014
- * @author Eduard Maksimovich <edward.vstock@gmail.com>
- *
- * Class: ServiceHandlerTrait
- *
- * @package edwardstock\minified\events
- */
-
 namespace EdwardStock\Minified\Core;
 
 
@@ -16,6 +7,14 @@ use EdwardStock\Minified\Exceptions\MinifiedServiceException;
 use EdwardStock\Minified\Helpers\JsonHelper;
 use EdwardStock\Minified\MinifiedService;
 
+/**
+ * yii2-minified-api-extension. 2014
+ * @author Eduard Maksimovich <edward.vstock@gmail.com>
+ *
+ * Trait: ServiceHandlerTrait
+ *
+ * @package edwardstock\minified\events
+ */
 trait ServiceHandlerTrait {
 
 	private $authenticated = false;

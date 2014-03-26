@@ -1,14 +1,12 @@
 <?php
+namespace EdwardStock\Minified\Helpers;
+
 /**
  * minified. 2014
  * @author Eduard Maksimovich <edward.vstock@gmail.com>
  *
  * Class: FileHelper
  */
-
-namespace EdwardStock\Minified\Helpers;
-
-
 class FileHelper
 {
 	/**

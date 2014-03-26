@@ -1,14 +1,12 @@
 <?php
+namespace EdwardStock\Minified\Exceptions;
+
 /**
  * minified. 2014
  * @author Eduard Maksimovich <edward.vstock@gmail.com>
  *
- * Class: MinifiedServiceException
+ * Exception class: MinifiedServiceException
  */
-
-namespace EdwardStock\Minified\Exceptions;
-
-
 class MinifiedServiceException extends MinifiedException {
 
 	public function __construct($message, $code = 0, \Exception $_previous = null) {

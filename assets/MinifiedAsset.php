@@ -1,17 +1,15 @@
 <?php
+namespace EdwardStock\Minified\StorageAssets;
+
+use EdwardStock\Minified\MinifiedClient;
+use yii\web\AssetBundle;
+
 /**
  * minified. 2014
  * @author Eduard Maksimovich <edward.vstock@gmail.com>
  *
  * Class: MinifiedAsset
  */
-
-namespace EdwardStock\Minified\StorageAssets;
-
-
-use EdwardStock\Minified\MinifiedClient;
-use yii\web\AssetBundle;
-
 class MinifiedAsset extends AssetBundle {
 
 	public $basePath = '@webroot';

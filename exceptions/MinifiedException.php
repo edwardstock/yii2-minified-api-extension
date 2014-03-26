@@ -1,15 +1,14 @@
 <?php
-/**
- * minified. 2014
- * @author Eduard Maksimovich <edward.vstock@gmail.com>
- *
- * Class: MinifiedException
- */
-
 namespace EdwardStock\Minified\Exceptions;
 
 use yii\base\Exception;
 
+/**
+ * minified. 2014
+ * @author Eduard Maksimovich <edward.vstock@gmail.com>
+ *
+ * Exception class: MinifiedException
+ */
 class MinifiedException extends Exception {
 
 	protected $info;
