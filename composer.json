@@ -29,7 +29,7 @@
 	"autoload": {
 		"psr-4": {
 			"EdwardStock\\Minified\\": "",
-			"EdwardStock\\Minified\\Assets\\": "",
+			"EdwardStock\\Minified\\StorageAssets\\": "",
 			"EdwardStock\\Minified\\Core\\": "",
 			"EdwardStock\\Minified\\Exceptions\\": "",
 			"EdwardStock\\Minified\\Helpers\\": ""
