@@ -5,7 +5,7 @@ namespace EdwardStock\Minified\Core;
 use EdwardStock\Curl\Curl;
 use EdwardStock\Minified\Exceptions\MinifiedServiceException;
 use EdwardStock\Minified\Helpers\JsonHelper;
-use EdwardStock\Minified\MinifiedService;
+use yii\web\HttpException;
 
 /**
  * yii2-minified-api-extension. 2014
@@ -45,11 +45,11 @@ trait ServiceHandlerTrait {
 	}
 
 	public function onPutDataSuccess(Curl $curl) {
-
+		$this->response = $curl->response;
 	}
 
 	public function onGetDataError(Curl $curl) {
-
+		throw new HttpException($curl->curlErrorMessage, $curl->curlErrorCode);
 	}
 
 	public function onGetDataSuccess(Curl $curl) {
