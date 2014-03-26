@@ -11,10 +11,10 @@
 namespace EdwardStock\Minified\Core;
 
 
-use edwardstock\curl\Curl;
-use edwardstock\minified\exceptions\MinifiedServiceException;
-use edwardstock\minified\helpers\JsonHelper;
-use edwardstock\minified\MinifiedService;
+use EdwardStock\Curl\Curl;
+use EdwardStock\Minified\Exceptions\MinifiedServiceException;
+use EdwardStock\Minified\Helpers\JsonHelper;
+use EdwardStock\Minified\MinifiedService;
 
 trait ServiceHandlerTrait {
 

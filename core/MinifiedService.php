@@ -9,7 +9,7 @@
 namespace EdwardStock\Minified;
 
 
-use edwardstock\curl\Curl;
+use EdwardStock\Curl\Curl;
 use EdwardStock\Minified\Core\ServiceInterface;
 use EdwardStock\Minified\Core\ServiceHandlerTrait;
 use EdwardStock\Minified\Helpers\JsonHelper;
