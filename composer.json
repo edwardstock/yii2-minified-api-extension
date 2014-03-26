@@ -28,11 +28,13 @@
 	],
 	"autoload": {
 		"psr-4": {
-			"EdwardStock\\Minified\\": "",
-			"EdwardStock\\Minified\\StorageAssets\\": "",
-			"EdwardStock\\Minified\\Core\\": "",
-			"EdwardStock\\Minified\\Exceptions\\": "",
-			"EdwardStock\\Minified\\Helpers\\": ""
+			"psr-4": {
+				"EdwardStock\\Minified\\": "",
+				"EdwardStock\\Minified\\StorageAssets\\": "assets/",
+				"EdwardStock\\Minified\\Core\\": "core/",
+				"EdwardStock\\Minified\\Exceptions\\": "exceptions/",
+				"EdwardStock\\Minified\\Helpers\\": "helpers/"
+			}
 		}
 	}
 }
