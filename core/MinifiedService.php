@@ -6,7 +6,7 @@
  * Class: MinifiedService
  */
 
-namespace EdwardStock\Minified;
+namespace EdwardStock\Minified\Core;
 
 
 use EdwardStock\Curl\Curl;
