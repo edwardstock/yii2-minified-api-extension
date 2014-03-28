@@ -3,7 +3,9 @@ namespace EdwardStock\Minified;
 
 define('DS', DIRECTORY_SEPARATOR) or defined('DS');
 
+use EdwardStock\Minified\Core\MinifiedService;
 use EdwardStock\Minified\Exceptions\MinifiedException;
+use EdwardStock\Minified\Helpers;
 use EdwardStock\Minified\Helpers\FileHelper;
 use yii\base\Component;
 use yii\base\Exception;
