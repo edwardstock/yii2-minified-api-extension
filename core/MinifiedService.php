@@ -5,7 +5,6 @@ namespace EdwardStock\Minified\Core;
 use EdwardStock\Curl\Curl;
 use EdwardStock\Minified\Bootstrap;
 use EdwardStock\Minified\Core\ServiceHandlerTrait;
-use EdwardStock\Minified\Minified;
 
 /**
  * minified. 2014
@@ -40,14 +39,14 @@ final class MinifiedService extends Minified implements ServiceInterface {
 	 * @var array API config
 	 */
 	private $_curlConfig = [
-		'apiUrl'    => 'http://api.minified.pw',
-		'auth'      => 'http://api.minified.pw/user/auth',
-		'putItems'  => 'http://api.minified.pw/source/put',
+		'apiUrl'     => 'http://api.minified.pw',
+		'auth'       => 'http://api.minified.pw/user/auth',
+		'putItems'   => 'http://api.minified.pw/source/put',
 		//verb POST
 		'deleteItem' => 'http://api.minified.pw/source/delete', //verb DELETE
-		'getItem'   => 'http://api.minified.pw/source/get-static',
+		'getItem'    => 'http://api.minified.pw/source/get-static',
 		//verb GET
-		'userAgent' => 'Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1700.102 Safari/537.36',
+		'userAgent'  => 'Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1700.102 Safari/537.36',
 	];
 
 	public function __construct(Bootstrap $bootstrap) {

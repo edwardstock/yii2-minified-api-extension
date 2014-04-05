@@ -5,9 +5,8 @@ define('DS', DIRECTORY_SEPARATOR) or defined('DS');
 
 use EdwardStock\Minified\Bootstrap;
 use EdwardStock\Minified\Exceptions\MinifiedException;
-use EdwardStock\Minified\Helpers;
 use EdwardStock\Minified\Helpers\FileHelper;
-use EdwardStock\Minified\Minified;
+use EdwardStock\Minified\Helpers;
 use yii\base\Exception;
 use yii\web\View;
 

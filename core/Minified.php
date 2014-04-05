@@ -1,5 +1,5 @@
 <?php
-namespace EdwardStock\Minified;
+namespace EdwardStock\Minified\Core;
 
 use yii\base\Object;
 
