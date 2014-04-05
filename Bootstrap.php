@@ -1,6 +1,7 @@
 <?php
 namespace EdwardStock\Minified;
 
+use EdwardStock\Minified\Core\MinifiedClient;
 use EdwardStock\Minified\Exceptions\MinifiedException;
 use yii\base\Component;
 
@@ -74,6 +75,13 @@ class Bootstrap extends Component {
 	 */
 	private $client;
 
+	public static function __callStatic($name, Array $params) {
+		if (!method_exists(MinifiedClient::className(), $name)) {
+			throw new MinifiedException("Static method $name not found in MinifiedClient class");
+		}
+
+		return call_user_func_array(MinifiedClient::className(), $params);
+	}
 
 	public function init() {
 		$this->client = new MinifiedClient($this);
@@ -85,14 +93,6 @@ class Bootstrap extends Component {
 		}
 
 		return call_user_func_array(array($this->client, $name), $params);
-	}
-
-	public static function __callStatic($name, Array $params) {
-		if (!method_exists(MinifiedClient::className(), $name)) {
-			throw new MinifiedException("Static method $name not found in MinifiedClient class");
-		}
-
-		return call_user_func_array(MinifiedClient::className(), $params);
 	}
 
 

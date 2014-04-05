@@ -4,7 +4,6 @@ namespace EdwardStock\Minified\Core;
 define('DS', DIRECTORY_SEPARATOR) or defined('DS');
 
 use EdwardStock\Minified\Bootstrap;
-use EdwardStock\Minified\Core\MinifiedService;
 use EdwardStock\Minified\Exceptions\MinifiedException;
 use EdwardStock\Minified\Helpers;
 use EdwardStock\Minified\Helpers\FileHelper;
@@ -120,7 +119,7 @@ class MinifiedClient extends Minified {
 
 		try {
 			$this->service->authenticate();
-		} catch (Exception $e) {
+		} catch(Exception $e) {
 			echo $e->getMessage();
 
 			return $this;
@@ -141,6 +140,38 @@ class MinifiedClient extends Minified {
 		\Yii::trace("Preparing source CSS styles", __METHOD__);
 		foreach ($this->bootstrap->sourceCssPaths AS $path) {
 			$this->obtainSourceInfo($path, $this->bootstrap->recursiveCssScan, ['css']);
+		}
+	}
+
+	/**
+	 * Gets information about sources
+	 * @see Minified::$_contents
+	 * @param       $path
+	 * @param bool  $recursive
+	 * @param array $acceptableExtensions
+	 * @throws \EdwardStock\Minified\Exceptions\MinifiedException
+	 */
+	private function obtainSourceInfo($path, $recursive = true, $acceptableExtensions = ['js', 'css']) {
+		\Yii::trace("Getting sources information", __METHOD__);
+
+		$objects = FileHelper::scanDirectory($path, $recursive);
+
+		foreach ($objects as $object) {
+			if ($object->isDir() || !in_array(strtolower($object->getExtension()), $acceptableExtensions)) {
+				continue;
+			}
+
+			if (!$object->isReadable()) {
+				throw new MinifiedException("File by path {$object->getPathname()} is not readable. Please check rights.");
+			}
+
+			$this->contents[] = [
+				'filename'  => $object->getFilename(),
+				'pathname'  => $object->getPathname(),
+				'timestamp' => $object->getMTime(),
+				'size'      => $object->getSize(),
+				'type'      => $object->getExtension()
+			];
 		}
 	}
 
@@ -224,38 +255,6 @@ class MinifiedClient extends Minified {
 		\Yii::trace("Are hashes equals originals? $info", __METHOD__);
 
 		return $equals;
-	}
-
-	/**
-	 * Gets information about sources
-	 * @see Minified::$_contents
-	 * @param       $path
-	 * @param bool  $recursive
-	 * @param array $acceptableExtensions
-	 * @throws \EdwardStock\Minified\Exceptions\MinifiedException
-	 */
-	private function obtainSourceInfo($path, $recursive = true, $acceptableExtensions = ['js', 'css']) {
-		\Yii::trace("Getting sources information", __METHOD__);
-
-		$objects = FileHelper::scanDirectory($path, $recursive);
-
-		foreach ($objects as $object) {
-			if ($object->isDir() || !in_array(strtolower($object->getExtension()), $acceptableExtensions)) {
-				continue;
-			}
-
-			if (!$object->isReadable()) {
-				throw new MinifiedException("File by path {$object->getPathname()} is not readable. Please check rights.");
-			}
-
-			$this->contents[] = [
-				'filename'  => $object->getFilename(),
-				'pathname'  => $object->getPathname(),
-				'timestamp' => $object->getMTime(),
-				'size'      => $object->getSize(),
-				'type'      => $object->getExtension()
-			];
-		}
 	}
 
 	/**

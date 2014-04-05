@@ -7,24 +7,23 @@ namespace EdwardStock\Minified\Helpers;
  *
  * Class: FileHelper
  */
-class FileHelper
-{
+class FileHelper {
 	/**
 	 * Checks for empty storage dir
-	 * @param $path
+	 * @param      $path
 	 * @param bool $recursive
 	 * @return bool
 	 */
 	public static function isEmptyPath($path, $recursive = false) {
 		\Yii::trace("Checking path $path for empty", __METHOD__);
 		$filesCount = 0;
-		foreach ( FileHelper::scanDirectory($path, $recursive) AS $object ) {
+		foreach (FileHelper::scanDirectory($path, $recursive) AS $object) {
 
-			if ( $object->isDir() || $object->getExtension() === 'gitignore' ) {
+			if ($object->isDir() || $object->getExtension() === 'gitignore') {
 				continue;
 			}
 
-			if ( $object->isFile() ) {
+			if ($object->isFile()) {
 				$filesCount++;
 			}
 		}
@@ -34,7 +33,7 @@ class FileHelper
 
 	/**
 	 * @param string $path
-	 * @param bool $recursive
+	 * @param bool   $recursive
 	 * @return \SplFileInfo[]
 	 */
 	public static function scanDirectory($path, $recursive = true) {
@@ -43,11 +42,12 @@ class FileHelper
 
 		/** @var \SplFileInfo[] $objects */
 
-		if ( $recursive ) {
+		if ($recursive) {
 			$objects = new \RecursiveIteratorIterator(
 				new \RecursiveDirectoryIterator($path, $flags), \RecursiveIteratorIterator::SELF_FIRST
 			);
-		} else {
+		}
+		else {
 			$objects = new \DirectoryIterator($path);
 		}
 
@@ -61,12 +61,12 @@ class FileHelper
 	 */
 	public static function countFilesInPath($path) {
 		$count = 0;
-		foreach ( FileHelper::scanDirectory($path, false) AS $object ) {
-			if ( $object->isDir() || $object->getExtension() === 'gitignore' ) {
+		foreach (FileHelper::scanDirectory($path, false) AS $object) {
+			if ($object->isDir() || $object->getExtension() === 'gitignore') {
 				continue;
 			}
 
-			if ( $object->isFile() ) {
+			if ($object->isFile()) {
 				$count++;
 			}
 		}

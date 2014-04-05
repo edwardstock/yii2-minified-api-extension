@@ -15,8 +15,8 @@ class MinifiedServiceException extends MinifiedException {
 	}
 
 	protected function getInfoByCode($code) {
-		foreach((new \ReflectionClass('edwardstock\minified\Minified'))->getConstants() AS $name=>$value) {
-			if(preg_match('/(API_)(.*)/s', $name, $matches) && $value === $code) {
+		foreach ((new \ReflectionClass('edwardstock\minified\Minified'))->getConstants() AS $name => $value) {
+			if (preg_match('/(API_)(.*)/s', $name, $matches) && $value === $code) {
 				return $matches[2];
 			}
 		}

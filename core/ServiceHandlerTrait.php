@@ -9,7 +9,7 @@ use yii\web\HttpException;
 
 /**
  * yii2-minified-api-extension. 2014
- * @author Eduard Maksimovich <edward.vstock@gmail.com>
+ * @author  Eduard Maksimovich <edward.vstock@gmail.com>
  *
  * Trait: ServiceHandlerTrait
  *
@@ -27,7 +27,7 @@ trait ServiceHandlerTrait {
 	public function onAuthSuccess(Curl $curl) {
 		$response = JsonHelper::handleJsonResponse($curl);
 
-		if($response->error !== MinifiedService::API_NO_ERRORS) {
+		if ($response->error !== MinifiedService::API_NO_ERRORS) {
 			\Yii::error("Authorization failed. Service response - error code: {$response->error}", __METHOD__);
 			throw new MinifiedServiceException('Unable to authorize on service', $response->error);
 		}
@@ -37,7 +37,7 @@ trait ServiceHandlerTrait {
 
 	public function onAuthError(Curl $curl, array $data, MinifiedService $context) {
 		\Yii::error("Authorization failed. Error code: {$curl->errorCode}. Message: {$curl->errorMessage}", __METHOD__);
-		throw new \HttpException($curl->errorCode, $context->getCurlConfig()['auth'].' '.$curl->errorMessage);
+		throw new \HttpException($curl->errorCode, $context->getCurlConfig()['auth'] . ' ' . $curl->errorMessage);
 	}
 
 	public function onPutDataError(Curl $curl) {

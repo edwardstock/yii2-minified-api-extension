@@ -17,6 +17,7 @@ class JsonHelper {
 	 */
 	public static function handleJsonResponse(Curl $curl) {
 		\Yii::trace("Handling JSON response", __METHOD__);
+
 		return json_decode($curl->response);
 	}
 } 
