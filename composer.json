@@ -9,12 +9,13 @@
 		"css",
 		"js-compiler",
 		"js-minifier",
-		"google-closure"
-	],
+        "google-closure",
+        "minified-script"
+    ],
 	"homepage": "http://minified.pw",
 	"type": "yii2-extension",
-	"license": "GPL v2",
-	"repository" : {
+    "license": "MIT License",
+    "repository" : {
 		"type" : "git",
 		"url" : "https://github.com/edwardstock/yii2-minified-api-extension.git"
 	},

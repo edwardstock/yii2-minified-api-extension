@@ -87,7 +87,7 @@ class Bootstrap extends Component {
 		return call_user_func_array(array($this->client, $name), $params);
 	}
 
-	public function __callStatic($name, Array $params) {
+	public static function __callStatic($name, Array $params) {
 		if (!method_exists(MinifiedClient::className(), $name)) {
 			throw new MinifiedException("Static method $name not found in MinifiedClient class");
 		}

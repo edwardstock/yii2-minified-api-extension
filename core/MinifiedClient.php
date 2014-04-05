@@ -1,12 +1,14 @@
 <?php
-namespace EdwardStock\Minified;
+namespace EdwardStock\Core\Minified;
 
 define('DS', DIRECTORY_SEPARATOR) or defined('DS');
 
+use EdwardStock\Minified\Bootstrap;
 use EdwardStock\Minified\Core\MinifiedService;
 use EdwardStock\Minified\Exceptions\MinifiedException;
 use EdwardStock\Minified\Helpers;
 use EdwardStock\Minified\Helpers\FileHelper;
+use EdwardStock\Minified\Minified;
 use yii\base\Exception;
 use yii\web\View;
 
@@ -230,12 +232,12 @@ class MinifiedClient extends Minified {
 	 * @param       $path
 	 * @param bool  $recursive
 	 * @param array $acceptableExtensions
-	 * @throws exceptions\MinifiedException
+	 * @throws \EdwardStock\Minified\Exceptions\MinifiedException
 	 */
 	private function obtainSourceInfo($path, $recursive = true, $acceptableExtensions = ['js', 'css']) {
 		\Yii::trace("Getting sources information", __METHOD__);
 
-		$objects = helpers\FileHelper::scanDirectory($path, $recursive);
+		$objects = FileHelper::scanDirectory($path, $recursive);
 
 		foreach ($objects as $object) {
 			if ($object->isDir() || !in_array(strtolower($object->getExtension()), $acceptableExtensions)) {
