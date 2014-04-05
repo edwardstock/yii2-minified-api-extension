@@ -1,5 +1,5 @@
 <?php
-namespace EdwardStock\Core\Minified;
+namespace EdwardStock\Minified\Core;
 
 define('DS', DIRECTORY_SEPARATOR) or defined('DS');
 
