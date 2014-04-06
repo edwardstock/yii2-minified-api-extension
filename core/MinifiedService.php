@@ -34,7 +34,6 @@ final class MinifiedService extends Minified implements ServiceInterface {
 	private $token;
 	private $queue = [];
 	private $curl;
-	private $response = [];
 	/**
 	 * @var array API config
 	 */
