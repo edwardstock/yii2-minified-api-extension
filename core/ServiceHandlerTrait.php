@@ -24,6 +24,10 @@ trait ServiceHandlerTrait {
 		return $this->authenticated;
 	}
 
+	public function getResponse() {
+		return $this->response;
+	}
+
 	public function onAuthSuccess(Curl $curl) {
 		$response = JsonHelper::handleJsonResponse($curl);
 

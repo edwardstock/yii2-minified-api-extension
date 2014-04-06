@@ -72,7 +72,8 @@ final class MinifiedService extends Minified implements ServiceInterface {
 		foreach ($this->queue AS $items) {
 			$this->curl->post($this->_curlConfig['putItems'], array_merge($items, [
 				'username' => $this->username,
-				'token'    => $this->token
+				'token' => $this->token,
+				'data'  => json_encode($this->queue)
 			]));
 		}
 	}

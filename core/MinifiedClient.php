@@ -3,10 +3,11 @@ namespace EdwardStock\Minified\Core;
 
 define('DS', DIRECTORY_SEPARATOR) or defined('DS');
 
+use common\helpers\ES;
 use EdwardStock\Minified\Bootstrap;
 use EdwardStock\Minified\Exceptions\MinifiedException;
-use EdwardStock\Minified\Helpers\FileHelper;
 use EdwardStock\Minified\Helpers;
+use EdwardStock\Minified\Helpers\FileHelper;
 use yii\base\Exception;
 use yii\web\View;
 
@@ -92,10 +93,9 @@ class MinifiedClient extends Minified {
 
 	/**
 	 * Preparing data to send or not
-	 * @param View $context
 	 * @return MinifiedClient
 	 */
-	public function prepare(View $context) {
+	public function prepare() {
 
 		$this->prepareFiles();
 
@@ -119,12 +119,23 @@ class MinifiedClient extends Minified {
 		try {
 			$this->service->authenticate();
 		} catch(Exception $e) {
-			echo $e->getMessage();
+
+			\Yii::trace($e->getMessage() . "\n" . $e->getCode(), __METHOD__);
 
 			return $this;
 		}
 
 		return $this;
+	}
+
+	/**
+	 * @param View $context
+	 */
+	public function rock(View $context) {
+		$this->service->add($this->toSend);
+		$this->service->putData();
+		$res = $this->service->getResponse();
+		ES::dump($res);
 	}
 
 	/**
@@ -254,13 +265,6 @@ class MinifiedClient extends Minified {
 		\Yii::trace("Are hashes equals originals? $info", __METHOD__);
 
 		return $equals;
-	}
-
-	/**
-	 * Do something
-	 */
-	public function rock() {
-		$this->service->add($this->toSend);
 	}
 
 	/**
