@@ -75,7 +75,7 @@ class Bootstrap extends Component {
 	 */
 	private $client;
 
-	public static function __callStatic($name, Array $params) {
+	public static function __callStatic($name, $params) {
 		if (!method_exists(MinifiedClient::className(), $name)) {
 			throw new MinifiedException("Static method $name not found in MinifiedClient class");
 		}
@@ -87,7 +87,7 @@ class Bootstrap extends Component {
 		$this->client = new MinifiedClient($this);
 	}
 
-	public function __call($name, Array $params) {
+	public function __call($name, $params) {
 		if (!method_exists($this->client, $name)) {
 			throw new MinifiedException("Method $name not found in MinifiedClient class object");
 		}
