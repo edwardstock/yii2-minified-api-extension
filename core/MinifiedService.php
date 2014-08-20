@@ -11,17 +11,18 @@ use EdwardStock\Minified\Core\ServiceHandlerTrait;
  * @author Eduard Maksimovich <edward.vstock@gmail.com>
  * Class: MinifiedService
  */
-final class MinifiedService extends Minified implements ServiceInterface {
+final class MinifiedService extends Minified implements ServiceInterface
+{
 
 	use ServiceHandlerTrait {
-		onAuthError AS protected authErrorEvent;
-		onAuthSuccess AS protected authSuccessEvent;
-		onDeleteDataError AS protected deleteDataErrorEvent;
-		onDeleteDataSuccess AS protected deleteDataSuccessEvent;
-		onGetDataError AS protected getDataErrorEvent;
-		onGetDataSuccess AS protected getDataSuccessEvent;
-		onPutDataError AS protected putDataErrorEvent;
-		onPutDataSuccess AS protected putDataSuccessEvent;
+		onAuthError AS public authErrorEvent;
+		onAuthSuccess AS public authSuccessEvent;
+		onDeleteDataError AS public deleteDataErrorEvent;
+		onDeleteDataSuccess AS public deleteDataSuccessEvent;
+		onGetDataError AS public getDataErrorEvent;
+		onGetDataSuccess AS public getDataSuccessEvent;
+		onPutDataError AS public putDataErrorEvent;
+		onPutDataSuccess AS public putDataSuccessEvent;
 	}
 
 	const API_NO_ERRORS = 0x0;
@@ -69,13 +70,15 @@ final class MinifiedService extends Minified implements ServiceInterface {
 	public function putData() {
 		$this->curl->onError([$this, 'putDataErrorEvent']);
 		$this->curl->onSuccess([$this, 'putDataSuccessEvent']);
-		foreach ($this->queue AS $items) {
-			$this->curl->post($this->_curlConfig['putItems'], array_merge($items, [
-				'username' => $this->username,
-				'token' => $this->token,
-				'data'  => json_encode($this->queue)
-			]));
-		}
+
+		$projectName = (\Yii::$app->name === '' || \Yii::$app->name === null) ? 'Common Project' : \Yii::$app->name;
+		$toSend = [
+			'projectName' => $projectName,
+			'username'    => $this->username,
+			'token'       => $this->token,
+			'data'        => json_encode($this->queue)
+		];
+		$this->curl->put($this->_curlConfig['putItems'], $toSend);
 	}
 
 	/**

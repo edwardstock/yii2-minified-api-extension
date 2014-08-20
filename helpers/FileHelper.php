@@ -65,17 +65,20 @@ class FileHelper {
 			$objects = new \DirectoryIterator($path);
 		}
 
+
 		return $objects;
 	}
 
 	/**
 	 * Counts files in pat NOT recursively and ignoring .gitignore
+	 *
 	 * @param string $path
+	 * @param bool $recursive
 	 * @return int
 	 */
-	public static function countFilesInPath($path) {
+	public static function countFilesInPath($path, $recursive = false) {
 		$count = 0;
-		foreach (FileHelper::scanDirectory($path, false) AS $object) {
+		foreach (FileHelper::scanDirectory($path, $recursive) AS $object) {
 			if ($object->isDir() || $object->getExtension() === 'gitignore') {
 				continue;
 			}

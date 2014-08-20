@@ -11,7 +11,8 @@ use yii\base\Component;
  *
  * Class: Bootstrap
  */
-class Bootstrap extends Component {
+class Bootstrap extends Component
+{
 
 	/**
 	 * @var string

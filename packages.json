@@ -1,11 +1,11 @@
 {
-	"package": {
-		"name": "edwardstock/minified",
-		"version": "0.1",
-		"source": {
-			"url": "https://github.com/edwardstock/yii2-minified-api-extension",
-			"type": "git",
-			"reference": "master"
-		}
-	}
+    "package": {
+        "name": "edwardstock/minified",
+        "version": "0.7",
+        "source": {
+            "url": "https://github.com/edwardstock/yii2-minified-api-extension",
+            "type": "git",
+            "reference": "master"
+        }
+    }
 }

@@ -18,5 +18,4 @@ abstract class Minified extends Object {
 	const ERROR_CODE_INTERNAL_ERROR = 500;
 	const ERROR_CODE_SERVICE_UNAVAILABLE = 503;
 
-
-} 
+}

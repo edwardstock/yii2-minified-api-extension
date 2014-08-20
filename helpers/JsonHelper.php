@@ -7,9 +7,10 @@ namespace EdwardStock\Minified\Helpers;
  *
  * Class: JsonHelper
  */
-use edwardstock\curl\Curl;
+use EdwardStock\Curl\Curl;
 
-class JsonHelper {
+class JsonHelper
+{
 
 	/**
 	 * @param Curl $curl

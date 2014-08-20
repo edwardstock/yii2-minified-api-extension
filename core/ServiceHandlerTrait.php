@@ -15,7 +15,8 @@ use yii\web\HttpException;
  *
  * @package edwardstock\minified\events
  */
-trait ServiceHandlerTrait {
+trait ServiceHandlerTrait
+{
 
 	private $authenticated = false;
 	private $response = [];
@@ -39,13 +40,14 @@ trait ServiceHandlerTrait {
 		$this->authenticated = true;
 	}
 
-	public function onAuthError(Curl $curl, array $data, MinifiedService $context) {
+	public function onAuthError(Curl $curl) {
 		\Yii::error("Authorization failed. Error code: {$curl->errorCode}. Message: {$curl->errorMessage}", __METHOD__);
-		throw new \HttpException($curl->errorCode, $context->getCurlConfig()['auth'] . ' ' . $curl->errorMessage);
+		throw new HttpException($curl->errorCode, $curl->errorMessage);
 	}
 
 	public function onPutDataError(Curl $curl) {
-
+		echo $curl->response;
+		exit(0);
 	}
 
 	public function onPutDataSuccess(Curl $curl) {

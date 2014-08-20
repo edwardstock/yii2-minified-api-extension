@@ -1,6 +1,7 @@
 <?php
 namespace EdwardStock\Minified\StorageAssets;
 
+use EdwardStock\Minified\Bootstrap;
 use EdwardStock\Minified\MinifiedClient;
 use yii\web\AssetBundle;
 
@@ -10,22 +11,28 @@ use yii\web\AssetBundle;
  *
  * Class: MinifiedAsset
  */
-class MinifiedAsset extends AssetBundle {
+class MinifiedAsset extends AssetBundle
+{
 
-	public $basePath = '@webroot';
-	public $baseUrl = '@web';
-	public $css = [];
-	public $js = [];
-	public $depends = [];
+	public $sourcePath = '@vendor/edwardstock/minified/resources/storage';
 
 	public function init() {
-		$this->getDepends();
+		$this->setDepends();
+		$this->setAssets();
+
 		parent::init();
 	}
 
-	private function getDepends() {
-		if(isset(\Yii::$app->minified) && \Yii::$app->minified instanceof MinifiedClient){
+	private function setDepends() {
+		if (isset(\Yii::$app->minified) && \Yii::$app->minified instanceof Bootstrap) {
 			$this->depends = \Yii::$app->minified->getDepends();
+		}
+	}
+
+	private function setAssets() {
+		if (isset(\Yii::$app->minified) && \Yii::$app->minified instanceof Bootstrap) {
+			$this->css = \Yii::$app->minified->getCompressedStyles();
+			$this->js = \Yii::$app->minified->getCompressedScripts();
 		}
 	}
 

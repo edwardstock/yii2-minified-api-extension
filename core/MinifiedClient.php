@@ -3,11 +3,11 @@ namespace EdwardStock\Minified\Core;
 
 define('DS', DIRECTORY_SEPARATOR) or defined('DS');
 
-use common\helpers\ES;
 use EdwardStock\Minified\Bootstrap;
 use EdwardStock\Minified\Exceptions\MinifiedException;
 use EdwardStock\Minified\Helpers;
 use EdwardStock\Minified\Helpers\FileHelper;
+use EdwardStock\Minified\StorageAssets\MinifiedAsset;
 use yii\base\Exception;
 use yii\web\View;
 
@@ -18,6 +18,9 @@ use yii\web\View;
  * RESTfull API based extension for service MINIFIED.pw
  */
 class MinifiedClient extends Minified {
+
+	const LOG_CATEGORY = 'EdwardStock\Minified\Core\MinifiedClient';
+
 	// compilation levels
 	const COMPILATION_LEVEL_WHITESPACE_ONLY = 'WHITESPACE_ONLY';
 	const COMPILATION_LEVEL_SIMPLE_OPTIMIZATION = 'SIMPLE_OPTIMIZATIONS';
@@ -81,11 +84,43 @@ class MinifiedClient extends Minified {
 	 */
 	private $bootstrap;
 
+	/**
+	 * @var bool If files does not modified, we just set flag to TRUE and will not request data from service
+	 */
+	private $justPublish = false;
+
+	/**
+	 * @var array Final array to store compressed files from "storage" directory
+	 */
+	private $compressed = [];
+
+	private function prepareStorageData() {
+		$files = FileHelper::scanDirectory($this->storagePath, true);
+
+		foreach ($files AS $file) {
+			$publishPath = str_replace($this->storagePath . '/', '', $file->getPathname());
+
+			if ($file->getExtension() === 'css') {
+				$this->compressed['css'][] = $publishPath;
+			} elseif ($file->getExtension() === 'js') {
+				$this->compressed['js'][] = $publishPath;
+			}
+		}
+	}
+
+	public function getCompressedStyles() {
+		return isset($this->compressed['css']) ? $this->compressed['css'] : [];
+	}
+
+	public function getCompressedScripts() {
+		return isset($this->compressed['js']) ? $this->compressed['js'] : [];
+	}
+
 	public function __construct(Bootstrap $bootstrap) {
-		$this->storagePath = __DIR__ . '/resources/storage';
-		$this->hashFilesPath = __DIR__ . '/resources/hashes';
+		$this->storagePath = realpath(__DIR__ . '/../resources/storage');
+		$this->hashFilesPath = realpath(__DIR__ . '/../resources/hashes');
 		$this->hashFilesCount = FileHelper::countFilesInPath($this->hashFilesPath);
-		$this->storageFilesCount = FileHelper::countFilesInPath($this->storagePath);
+		$this->storageFilesCount = FileHelper::countFilesInPath($this->storagePath, true);
 
 		$this->bootstrap = $bootstrap;
 		$this->service = new MinifiedService($bootstrap);
@@ -96,28 +131,36 @@ class MinifiedClient extends Minified {
 	 * @return MinifiedClient
 	 */
 	public function prepare() {
-
 		$this->prepareFiles();
 
 		if (!$this->obtainFilesContent()) {
 			return $this;
 		}
 
+
 		if ($this->hashPathIsEmpty() || $this->hashFilesCount !== count($this->contents)) {
 			foreach ($this->contents AS $file) {
 				$this->writeHashFile($file);
 			}
+		} else {
+			$this->obtainHashFilesList();
 		}
 
 		if ($this->storagePathIsEmpty()) {
 			$this->registerRequestData($this->contents);
-		}
-		elseif (!$this->hashesEqualsOriginal()) {
+		} elseif ($this->hashesEqualsOriginal() === false) {
 			$this->registerRequestData($this->contentsModified);
+		} else {
+			//meaning sources does not modified and we not need to connect
+			$this->justPublish = true;
+
+			return $this;
 		}
+
 
 		try {
 			$this->service->authenticate();
+
 		} catch(Exception $e) {
 
 			\Yii::trace($e->getMessage() . "\n" . $e->getCode(), __METHOD__);
@@ -132,10 +175,25 @@ class MinifiedClient extends Minified {
 	 * @param View $context
 	 */
 	public function rock(View $context) {
-		$this->service->add($this->toSend);
-		$this->service->putData();
-		$res = $this->service->getResponse();
-		ES::dump($res);
+		if (!$this->justPublish) {
+			$this->service->add($this->toSend);
+
+			$this->service->putData();
+			$result = json_decode($this->service->getResponse());
+
+			/** @var \stdClass[] $result */
+			foreach ($result AS $item) {
+				$hash = md5($item->filepath);
+				$path = $this->storagePath . DS . $hash;
+				@mkdir($path, 0775, true);
+
+				file_put_contents($path . DS . $item->filename, $item->target);
+			}
+		}
+
+		// !IMPORTANT! If method prepareStorageData will be moved somewhere else, assets will not be published
+		$this->prepareStorageData();
+		MinifiedAsset::register($context);
 	}
 
 	/**
@@ -161,7 +219,7 @@ class MinifiedClient extends Minified {
 	 * @param array $acceptableExtensions
 	 * @throws \EdwardStock\Minified\Exceptions\MinifiedException
 	 */
-	private function obtainSourceInfo($path, $recursive = true, $acceptableExtensions = ['js', 'css']) {
+	private function obtainSourceInfo($path, $recursive = true, array $acceptableExtensions = ['js', 'css']) {
 		\Yii::trace("Getting sources information", __METHOD__);
 
 		$objects = FileHelper::scanDirectory($path, $recursive);
@@ -183,6 +241,7 @@ class MinifiedClient extends Minified {
 				'type'      => $object->getExtension()
 			];
 		}
+
 	}
 
 	/**
@@ -208,8 +267,16 @@ class MinifiedClient extends Minified {
 		return $this->hashFilesCount === 0 ? true : false;
 	}
 
+	private function removeHashFile($hash) {
+		$file = $this->hashFilesPath . DS . $hash;
+		if (!file_exists($file))
+			return false;
+
+		return unlink($file);
+	}
+
 	/**
-	 * Writes empty file with hashed name by: filename+timestamp wrapped by md5()
+	 * Writes empty file with hashed name by: filename+timestamp wrapped with md5()
 	 * @param array $file
 	 */
 	private function writeHashFile(array $file) {
@@ -233,7 +300,7 @@ class MinifiedClient extends Minified {
 	 * @return bool
 	 */
 	private function storagePathIsEmpty() {
-		return $this->storageFilesCount === 0 ? true : false;
+		return $this->storageFilesCount === 0;
 	}
 
 	/**
@@ -249,22 +316,36 @@ class MinifiedClient extends Minified {
 	 * Then we will send request to the service and get compressed data
 	 */
 	private function hashesEqualsOriginal() {
-		$count = 0;
+
+		$originHashes = [];
+		$contentWithHash = [];
+		$currentHashes = $this->hashFilesList;
+
 		foreach ($this->contents AS $file) {
-			if (md5($file['filename'] . $file['timestamp']) === $this->hashFilesList[$count]) {
-				continue;
-			}
-
-			$this->contentsModified[] = $file;
-
-			$count++;
+			$contentWithHash[md5($file['filename'] . $file['timestamp'])] = $file;
+			$originHashes[] = md5($file['filename'] . $file['timestamp']);
 		}
 
-		$equals = $count === 0 ? true : false;
-		$info = $equals ? "true" : "false";
-		\Yii::trace("Are hashes equals originals? $info", __METHOD__);
+		$originHashCount = count($originHashes);
+		$currentHashCount = count($currentHashes);
 
-		return $equals;
+		if ($originHashCount !== $currentHashCount) {
+			$this->contentsModified = $this->contents;
+
+			return false;
+		}
+
+		sort($originHashes);
+		sort($currentHashes);
+
+		for ($i = 0; $i < $originHashCount; $i++) {
+			if ($originHashes[$i] !== $currentHashes[$i]) {
+				$this->removeHashFile($currentHashes[$i]);
+				$this->contentsModified[] = $contentWithHash[$originHashes[$i]];
+			}
+		}
+
+		return count($this->contentsModified) === 0;
 	}
 
 	/**
@@ -284,23 +365,11 @@ class MinifiedClient extends Minified {
 		}
 
 		foreach (FileHelper::scanDirectory($this->hashFilesPath, false) AS $object) {
+			if ($object->getFilename() === '.' || $object->getFilename() === '..')
+				continue;
+
 			$this->hashFilesList[] = $object->getFilename();
 		}
+
 	}
-
-	/**
-	 * @deprecated
-	 * @return bool
-	 */
-	private function assetsCountIsEquals() {
-		$equals = (count($this->contents) === $this->hashFilesCount) === $this->storageFilesCount;
-		\Yii::info("Hash count: {$this->hashFilesCount}; Storage count: {$this->storageFilesCount}; Contents count: " . count($this->contents),
-			__METHOD__);
-		$info = $equals ? "true" : "false";
-		\Yii::info("Are they equals? $info", __METHOD__);
-
-		return $equals;
-	}
-
-
 }
