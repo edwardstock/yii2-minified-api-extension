@@ -373,3 +373,4 @@ class MinifiedClient extends Minified {
 
 	}
 }
+
